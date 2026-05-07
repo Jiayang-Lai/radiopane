@@ -1,0 +1,4 @@
+SvelteKit
+shadcn
+icecast-metadata-player
+ui
