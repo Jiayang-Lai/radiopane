@@ -254,7 +254,7 @@
   <title>Stations | Radio Pane</title>
 </svelte:head>
 
-<section class="space-y-4">
+<section class="space-y-4 px-2 pt-2 pb-2 md:px-2 md:pt-2 lg:px-4 lg:pt-4 lg:pb-4">
   <div class="space-y-2">
     <p class="text-primary text-sm font-semibold uppercase tracking-[0.18em]">
       Stations

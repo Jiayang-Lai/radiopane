@@ -31,7 +31,7 @@
 	<title>Radio Map | Radio Pane</title>
 </svelte:head>
 
-<section class="flex min-h-0 flex-1 flex-col gap-2 sm:gap-3 flex-start">
+<section class="flex min-h-0 flex-1 flex-col px-2 pt-2 md:px-2 md:pt-2 lg:px-4 lg:pt-4 lg:pb-4">
 	<!-- <div class="px-3 py-2.5 transition-all sm:px-4 sm:py-3">
     <div class="min-w-0 space-y-0.5 sm:space-y-1">
       <p class="text-primary text-sm font-semibold uppercase tracking-[0.18em]">

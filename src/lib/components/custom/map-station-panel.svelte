@@ -136,7 +136,7 @@
 {/if}
 
 <aside
-	class={`border-border bg-card relative z-10 min-h-72 flex-col overflow-hidden rounded-xl border shadow-sm ${selectedCluster || selectedStation ? 'flex max-h-[42svh] sm:max-h-none' : 'hidden sm:flex'}`}
+	class={`border-border bg-card relative z-10 min-h-72 min-w-0 flex-col overflow-hidden rounded-xl border shadow-sm ${selectedCluster || selectedStation ? 'flex max-h-[42svh] sm:max-h-none xl:max-h-full' : 'hidden sm:flex'}`}
 >
 	<div class="border-border flex items-start justify-between gap-3 border-b px-4 py-3 sm:px-5 sm:py-4">
 		<div class="space-y-1">
@@ -155,8 +155,8 @@
 	</div>
 
 	{#if selectedCluster}
-		<div class="flex min-h-0 flex-col gap-4 overflow-hidden p-4 sm:gap-5 sm:p-5">
-			<div class="space-y-3">
+		<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4 sm:gap-5 sm:p-5">
+			<div class="flex min-h-0 flex-1 flex-col gap-3">
 				<div class="flex items-start gap-3">
 					<div class="bg-muted text-foreground flex size-14 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold">
 						{selectedCluster.pointCount}
@@ -197,7 +197,7 @@
 					</div>
 				{/if}
 
-				<div class="flex min-h-0 flex-1 flex-col space-y-2">
+				<div class="flex min-h-0 flex-1 flex-col gap-2">
 					<div class="flex items-center justify-between gap-3">
 						<p class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">
 							{#if selectedClusterHasApproximateStations || showAllClusterStations}
@@ -216,7 +216,7 @@
 							</button>
 						{/if}
 					</div>
-					<ScrollArea.Root class="h-100 min-h-0 overflow-hidden pr-3">
+					<ScrollArea.Root class="min-h-0 flex-1 overflow-hidden pr-3">
 						<div class="space-y-2">
 							{#if selectedCluster.exactStations.length > 0}
 								<p class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">

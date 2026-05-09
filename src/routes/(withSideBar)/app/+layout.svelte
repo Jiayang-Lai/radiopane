@@ -4,6 +4,7 @@
 
 	let { children } = $props();
 	let playerCollapsed = $state(false);
+	let playerWidgetHeight = $state(0);
 
 	const stationMeta = $derived.by(() => {
 		const station = playerState.currentStation;
@@ -60,14 +61,19 @@
 	{/if}
 </svelte:head>
 
-<div class="flex flex-1 flex-col gap-4 px-2 pt-2 pb-0 md:px-2 md:pt-2 lg:px-4
-lg:pt-4">
-	<div class="flex flex-1 flex-col pb-2">
+<div class="relative flex min-h-0 flex-1 flex-col gap-4 overflow-hidden pb-0">
+	<div 
+		class="flex min-h-0 flex-1 flex-col overflow-y-auto"
+		style:padding-bottom={playerState.currentStation ? `calc(${playerWidgetHeight}px + var(--spacing) * 2)` : undefined}
+	>
 		{@render children()}
 	</div>
 
 	{#if playerState.currentStation}
-		<div class="pointer-events-none sticky bottom-2 lg:bottom-4 z-30 w-full self-stretch min-w-0">
+		<div 
+			bind:clientHeight={playerWidgetHeight}
+			class="pointer-events-none absolute bottom-2 lg:bottom-4 px-2 lg:px-4 z-30 flex justify-center w-full min-w-0 bg-transparent"
+		>
 			<PlayerWidget
 				bind:collapsed={playerCollapsed}
 				title={stationMeta.title}
