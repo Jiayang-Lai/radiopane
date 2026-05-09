@@ -450,8 +450,8 @@
 	});
 </script>
 
-<div class="grid min-h-0 flex-1 gap-2 xl:h-full xl:grid-cols-[minmax(0,1fr)_22rem]">
-	<div class="border-border bg-card relative z-0 h-[52svh] min-h-88 max-h-160 overflow-hidden rounded-xl border shadow-sm isolate sm:h-[58svh] sm:min-h-112 xl:h-full xl:min-h-0 xl:max-h-none">
+<div class="flex min-h-0 flex-1 flex-col gap-2 xl:h-full xl:flex-row">
+	<div class="border-border bg-card relative z-0 flex-1 min-h-0 overflow-hidden rounded-xl border shadow-sm isolate">
 		{#if !mapReady}
 			<div class="bg-card/70 absolute top-3 right-3 z-500 rounded-full p-2 backdrop-blur-sm sm:top-4 sm:right-4">
 				<Spinner class="size-4 text-primary" aria-label="Loading map" />

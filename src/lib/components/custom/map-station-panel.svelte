@@ -486,7 +486,7 @@
 	{/if}
 {/if}
 
-<aside class="border-border bg-card relative z-10 hidden min-h-72 min-w-0 flex-col overflow-hidden rounded-xl border shadow-sm xl:flex xl:max-h-full">
+<aside class="border-border bg-card relative z-10 hidden min-h-72 min-w-0 flex-col overflow-hidden rounded-xl border shadow-sm xl:flex xl:w-88 xl:max-h-full xl:shrink-0">
 	{@render panelHeader(true)}
 	{@render panelContent()}
 </aside>

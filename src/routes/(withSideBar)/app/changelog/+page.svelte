@@ -6,6 +6,13 @@
   };
   const changelog: ChangelogEntry[] = [
     {
+      version: "0.1.5",
+      changes: [
+        "Dratically improved the UI with more adaptive layouts and better styling.",
+        "Added map selection support for small display devices.",
+      ],
+    },
+    {
       version: "0.1.4",
       changes: [
         "Fixed an issue where station dialog overflows on smaller screens.",
