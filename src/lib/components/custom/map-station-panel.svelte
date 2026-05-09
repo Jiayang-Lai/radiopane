@@ -470,7 +470,7 @@
 
 	{#if !isXlUp.current}
 		<Drawer.Root bind:open={mobilePanelOpen} shouldScaleBackground={false}>
-			<Drawer.Content class="max-h-[78svh] p-0 xl:hidden">
+			<Drawer.Content class="mx-auto w-full xl:hidden">
 				<Drawer.Header class="sr-only">
 					<Drawer.Title>{selectedCluster ? 'Cluster preview' : 'Selected station'}</Drawer.Title>
 					<Drawer.Description>
