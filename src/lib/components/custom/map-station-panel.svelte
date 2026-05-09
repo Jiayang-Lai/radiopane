@@ -270,7 +270,7 @@
 							</button>
 						{/if}
 					</div>
-					<ScrollArea.Root class="min-h-0 flex-1 overflow-hidden pr-3">
+					<ScrollArea.Root class="min-h-0 flex-1 overflow-y-auto pr-3" data-vaul-no-drag>
 						<div class="space-y-2">
 							{#if selectedCluster.exactStations.length > 0}
 								<p class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">
@@ -331,7 +331,7 @@
 			</p>
 		</div>
 	{:else if selectedStation}
-		<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:gap-5 sm:p-5">
+		<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:gap-5 sm:p-5" data-vaul-no-drag>
 			<div class="space-y-3">
 				<div class="flex items-start gap-3">
 					<div class="bg-muted flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl">
