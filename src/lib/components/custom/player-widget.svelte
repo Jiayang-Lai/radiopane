@@ -16,6 +16,7 @@
 		station?: string;
 		stationIcon?: string | null;
 		showMetadataFallback?: boolean;
+		collapsed?: boolean;
 		isPlaying?: boolean;
 		isLoading?: boolean;
 		errorMessage?: string | null;
@@ -29,14 +30,13 @@
 		station = 'Live radio',
 		stationIcon = null,
 		showMetadataFallback = false,
+		collapsed = $bindable(false),
 		isPlaying = false,
 		isLoading = false,
 		errorMessage = null,
 		showProgress = false,
 		onTogglePlayback
 	}: PlayerWidgetProps = $props();
-
-	let collapsed = $state(false);
 	let compactViewport = $state<HTMLDivElement | null>(null);
 	let compactTrack = $state<HTMLDivElement | null>(null);
 	let compactOverflow = $state(0);
@@ -125,12 +125,12 @@
 	});
 </script>
 
-<div class="w-full">
+<div class="w-full min-w-0">
 	{#if collapsed}
 		<div class="flex justify-end">
 			<div
 				transition:scale={{ duration: 180, easing: cubicOut, start: 0.92 }}
-				class="border-primary/25 bg-card/95 pointer-events-auto flex h-12 w-full max-w-72 items-center gap-2 rounded-full border pr-1 pl-1.5 shadow-lg backdrop-blur supports-backdrop-filter:bg-card/85"
+				class="border-primary/25 bg-card/95 pointer-events-auto flex h-12 w-auto max-w-[calc(100vw-1rem)] items-center gap-1 rounded-full border p-1 shadow-lg backdrop-blur supports-backdrop-filter:bg-card/85 sm:max-w-72 sm:gap-2 sm:pr-1 sm:pl-1.5"
 			>
 				<Button
 					type="button"
@@ -151,7 +151,7 @@
 
 				<button
 					type="button"
-					class="min-w-0 flex-1 overflow-hidden rounded-full px-2 py-1 text-left"
+					class="hidden min-w-0 flex-1 overflow-hidden rounded-full px-2 py-1 text-left sm:block"
 					onclick={toggleCollapsed}
 					aria-label="Show player widget"
 				>
@@ -185,7 +185,7 @@
 					type="button"
 					variant="ghost"
 					size="icon"
-					class="text-muted-foreground hover:text-foreground size-9 shrink-0 rounded-full"
+					class="text-muted-foreground hover:text-foreground size-10 shrink-0 rounded-full sm:size-9"
 					onclick={toggleCollapsed}
 					aria-label="Show player widget"
 				>
@@ -226,11 +226,17 @@
 
 					<div class="min-w-0 flex-1 pr-10 md:pr-12">
 						<p class={`${playerLabelClass} text-[11px] font-semibold uppercase tracking-[0.22em]`}>{playerLabel}</p>
-						<div class="mt-1 flex min-w-0 flex-col gap-0.5 md:flex-row md:items-baseline md:gap-3">
-							<Card.Title class="truncate text-base md:text-lg">{title}</Card.Title>
-							<p class="text-muted-foreground truncate text-sm">{artist}</p>
+						<div class="mt-1 flex min-w-0 flex-col gap-0.5">
+							<Card.Title class="min-w-0 truncate text-base md:text-lg">
+								{title}
+							</Card.Title>
+							<p class="text-foreground/88 min-w-0 truncate text-sm font-medium">
+								{artist}
+							</p>
 						</div>
-						<p class="text-muted-foreground mt-1 truncate text-sm">{station}</p>
+						<p class="text-muted-foreground/85 mt-1 truncate text-xs uppercase tracking-[0.14em]">
+							{station}
+						</p>
 						<div class="mt-1 min-h-4">
 							{#if statusMessage}
 								<p class={`${statusMessage.className} truncate text-xs font-medium`}>

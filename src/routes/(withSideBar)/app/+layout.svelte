@@ -3,6 +3,7 @@
 	import PlayerWidget from '$lib/components/custom/player-widget.svelte';
 
 	let { children } = $props();
+	let playerCollapsed = $state(false);
 
 	const stationMeta = $derived.by(() => {
 		const station = playerState.currentStation;
@@ -17,8 +18,8 @@
 
 		const metadataTitle = playerState.metadataTitle?.trim();
 		const metadataArtist = playerState.metadataArtist?.trim();
-		const fallbackArtist = [station.country, station.language].filter(Boolean).join(' · ');
-		const fallbackStation = station.tags.length > 0 ? station.tags.join(' · ') : 'Live radio';
+		const fallbackArtist = 'Unknown artist';
+		const fallbackStation = station.tags.length > 0 ? station.tags.join(' · ') : 'Unknown station';
 
 		return {
 			title: metadataTitle || station.name,
@@ -59,14 +60,16 @@
 	{/if}
 </svelte:head>
 
-<div class="flex flex-1 flex-col px-2 pt-2 pb-0 sm:px-4 sm:pt-4 md:px-6 md:pt-6">
+<div class="flex flex-1 flex-col gap-4 px-2 pt-2 pb-0 md:px-2 md:pt-2 lg:px-4
+lg:pt-4">
 	<div class="flex flex-1 flex-col pb-2">
 		{@render children()}
 	</div>
 
 	{#if playerState.currentStation}
-		<div class="pointer-events-none sticky bottom-4 z-30 mt-4 w-full self-stretch">
+		<div class="pointer-events-none sticky bottom-2 lg:bottom-4 z-30 w-full self-stretch min-w-0">
 			<PlayerWidget
+				bind:collapsed={playerCollapsed}
 				title={stationMeta.title}
 				artist={stationMeta.artist}
 				station={stationMeta.station}

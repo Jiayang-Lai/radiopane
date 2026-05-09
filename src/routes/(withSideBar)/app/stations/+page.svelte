@@ -254,7 +254,7 @@
   <title>Stations | Radio Pane</title>
 </svelte:head>
 
-<section class="space-y-6">
+<section class="space-y-4">
   <div class="space-y-2">
     <p class="text-primary text-sm font-semibold uppercase tracking-[0.18em]">
       Stations
@@ -390,13 +390,13 @@
         </div>
       {/if}
 
-      <div class="grid auto-rows-fr gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div class="grid auto-rows-fr gap-2 md:gap-4 md:grid-cols-2 xl:grid-cols-3">
         {#each displayedStations as station, index}
           <StationCard {station} />
         {/each}
       </div>
 
-      <div class="flex items-center justify-between gap-3 pt-2">
+      <div class="flex items-center justify-between gap-3">
         <p class="text-muted-foreground text-sm">
           Page {data.page}
         </p>

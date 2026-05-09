@@ -239,3 +239,6 @@ AGENTS.local.md
 .opencode/plans/
 .agents/skills
 .opencode/package-lock.json
+
+# Ignore file with *.ignore.*
+*.ignore.*
