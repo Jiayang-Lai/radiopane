@@ -9,7 +9,7 @@
   import type { PageData } from './$types';
 
   let { data }: { data: PageData } = $props();
-	let isIntroCollapsed = $state(false);
+	let isIntroCollapsed = $state(true);
   let isRetrying = $state(false);
 
   async function handleRetry() {
@@ -32,7 +32,7 @@
 </svelte:head>
 
 <section class="flex min-h-0 flex-1 flex-col px-2 pt-2 md:px-2 md:pt-2 lg:px-4 lg:pt-4 lg:pb-4">
-	<!-- <div class="px-3 py-2.5 transition-all sm:px-4 sm:py-3">
+	<div class="pb-2 pt-0 transition-all hidden md:block">
     <div class="min-w-0 space-y-0.5 sm:space-y-1">
       <p class="text-primary text-sm font-semibold uppercase tracking-[0.18em]">
         Radio Map
@@ -60,7 +60,7 @@
 				Explore stations around the world.
 			</p>
 		{/if}
-	</div> -->
+	</div>
 
   {#await data.stations}
     <Empty.Root class="min-h-88 rounded-none px-0 py-8 sm:min-h-112 xl:min-h-128">
