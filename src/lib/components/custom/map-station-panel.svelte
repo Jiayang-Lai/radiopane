@@ -209,30 +209,30 @@
 
 {#snippet panelContent()}
 	{#if selectedCluster}
-		<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4 sm:gap-5 sm:p-5">
+		<div class="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4 sm:gap-5 sm:p-5">
 			<div class="flex min-h-0 flex-1 flex-col gap-3">
 				<div class="flex items-start gap-3">
-					<div class="bg-muted text-foreground flex size-14 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold">
+					<div class="bg-muted text-foreground flex size-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold sm:size-14">
 						{selectedCluster.pointCount}
 					</div>
 					<div class="min-w-0 space-y-1">
 						<h2 class="line-clamp-2 text-lg font-semibold leading-tight">
 							{selectedCluster.pointCount.toLocaleString()} nearby stations
 						</h2>
-						<p class="text-muted-foreground text-sm">
+						<p class="text-muted-foreground line-clamp-2 text-sm">
 							{selectedClusterCountrySummary || 'Mixed regions'}
 						</p>
 					</div>
 				</div>
 
-				<div class="grid grid-cols-2 gap-3">
-					<div class="bg-muted/50 rounded-2xl px-3 py-2.5">
+				<div class="grid grid-cols-2 gap-2 sm:gap-3">
+					<div class="bg-muted/50 rounded-2xl px-3 py-2 sm:py-2.5">
 						<p class="text-muted-foreground text-[11px] uppercase tracking-[0.18em]">Stations</p>
 						<p class="mt-1 text-base font-semibold">
 							{selectedCluster.pointCount.toLocaleString()}
 						</p>
 					</div>
-					<div class="bg-muted/50 rounded-2xl px-3 py-2.5">
+					<div class="bg-muted/50 rounded-2xl px-3 py-2 sm:py-2.5">
 						<p class="text-muted-foreground text-[11px] uppercase tracking-[0.18em]">Languages</p>
 						<p class="mt-1 text-base font-semibold">
 							{selectedCluster.languageCount.toLocaleString()}
@@ -241,7 +241,7 @@
 				</div>
 
 				{#if selectedClusterHasApproximateStations}
-					<div class="bg-muted/45 rounded-2xl px-3 py-3 text-sm">
+					<div class="bg-muted/45 rounded-2xl px-3 py-2.5 text-sm sm:py-3">
 						<p class="font-medium">
 							{selectedCluster.approximateStations.length.toLocaleString()} station{selectedCluster.approximateStations.length === 1 ? '' : 's'} in this cluster use inferred map locations.
 						</p>
@@ -322,7 +322,7 @@
 				</div>
 			</div>
 
-			<p class="text-muted-foreground text-sm">
+			<p class="text-muted-foreground hidden text-sm sm:block">
 				{#if selectedClusterHasApproximateStations}
 					Approximate stations can remain grouped as you zoom. Use the grouped list above to open any station directly.
 				{:else}
@@ -331,10 +331,10 @@
 			</p>
 		</div>
 	{:else if selectedStation}
-		<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 sm:gap-5 sm:p-5" data-vaul-no-drag>
-			<div class="space-y-3">
+		<div class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4 sm:gap-5 sm:p-5" data-vaul-no-drag>
+			<div class="space-y-2.5 sm:space-y-3">
 				<div class="flex items-start gap-3">
-					<div class="bg-muted flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl">
+					<div class="bg-muted flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl sm:size-14">
 						{#if selectedStation.favicon}
 							<img
 								src={selectedStation.favicon}
@@ -349,7 +349,7 @@
 						<h2 class="line-clamp-2 text-lg font-semibold leading-tight">
 							{selectedStation.name}
 						</h2>
-						<p class="text-muted-foreground text-sm">{selectedStationMeta}</p>
+						<p class="text-muted-foreground line-clamp-2 text-sm">{selectedStationMeta}</p>
 						{#if isSelectedStationApproximate}
 							<p class="text-muted-foreground rounded-full border border-current/10 px-2.5 py-1 text-xs font-medium">
 								Approximate location
@@ -358,14 +358,14 @@
 					</div>
 				</div>
 
-				<div class="grid grid-cols-2 gap-3">
-					<div class="bg-muted/50 rounded-2xl px-3 py-2.5">
+				<div class="grid grid-cols-2 gap-2 sm:gap-3">
+					<div class="bg-muted/50 rounded-2xl px-3 py-2 sm:py-2.5">
 						<p class="text-muted-foreground text-[11px] uppercase tracking-[0.18em]">Votes</p>
 						<p class="mt-1 text-base font-semibold">
 							{selectedStation.votes.toLocaleString()}
 						</p>
 					</div>
-					<div class="bg-muted/50 rounded-2xl px-3 py-2.5">
+					<div class="bg-muted/50 rounded-2xl px-3 py-2 sm:py-2.5">
 						<p class="text-muted-foreground text-[11px] uppercase tracking-[0.18em]">Codec</p>
 						<p class="mt-1 text-base font-semibold">
 							{selectedStation.radioBrowser.codec || 'Unknown'}
@@ -374,7 +374,7 @@
 				</div>
 
 				{#if selectedStationTags.length > 0}
-					<div class="flex flex-wrap gap-2">
+					<div class="flex flex-wrap gap-1.5 sm:gap-2">
 						{#each selectedStationTags as tag}
 							<span class="bg-secondary text-secondary-foreground rounded-full px-2.5 py-1 text-xs font-medium">
 								{tag}
@@ -396,7 +396,7 @@
 				{/if}
 			</div>
 
-			<div class="mt-auto space-y-3">
+			<div class="space-y-3 sm:mt-auto">
 				<Button
 					type="button"
 					class="w-full justify-center gap-2"
@@ -477,7 +477,7 @@
 						Open map details and playback controls for the current selection.
 					</Drawer.Description>
 				</Drawer.Header>
-				<div class="flex min-h-0 max-h-[78svh] flex-col overflow-hidden">
+				<div class="flex h-[88svh] min-h-0 max-h-[88svh] flex-col overflow-hidden sm:h-[85svh] sm:max-h-[85svh]">
 					{@render panelHeader(false, true)}
 					{@render panelContent()}
 				</div>
