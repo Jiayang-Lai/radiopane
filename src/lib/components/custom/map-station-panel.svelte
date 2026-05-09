@@ -2,8 +2,11 @@
 	import PauseIcon from '@lucide/svelte/icons/pause';
 	import PlayIcon from '@lucide/svelte/icons/play';
 	import RadioIcon from '@lucide/svelte/icons/radio';
+	import XIcon from '@lucide/svelte/icons/x';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as ScrollArea from '$lib/components/ui/scroll-area/index.js';
+	import * as Drawer from '$lib/components/ui/drawer/index.js';
+	import { IsTailwindBreakpointUp } from '$lib/hooks/is-tailwind-breakpoint-up.svelte.js';
 	import { playerState, playStation, togglePlayback } from '$lib/player-state.svelte.js';
 	import type { AppStation } from '$lib/radio-browser';
 
@@ -30,10 +33,26 @@
 		onFocusPreviewStation?: (station: AppStation) => void;
 	} = $props();
 
+	let mobilePanelOpen = $state(false);
+	let lastMobileSelectionKey = '';
+	const isXlUp = new IsTailwindBreakpointUp('xl');
+
+	const hasSelection = $derived(!!selectedCluster || !!selectedStation);
 	const selectedClusterCountrySummary = $derived(selectedCluster?.countries.slice(0, 3).join(' · ') ?? '');
 	const selectedClusterHasApproximateStations = $derived(
 		(selectedCluster?.approximateStations.length ?? 0) > 0
 	);
+	const mobileSelectionKey = $derived.by(() => {
+		if (selectedCluster) {
+			return `cluster:${selectedCluster.pointCount}:${selectedCluster.stations[0]?.id ?? 'none'}`;
+		}
+
+		if (selectedStation) {
+			return `station:${selectedStation.id}`;
+		}
+
+		return '';
+	});
 	const selectedClusterVisibleStations = $derived.by(() => {
 		if (!selectedCluster) {
 			return [] as AppStation[];
@@ -90,6 +109,38 @@
 	const isSelectedPlaying = $derived(isSelectedCurrentStation && playerState.isPlaying);
 	const isSelectedLoading = $derived(isSelectedCurrentStation && playerState.isLoading);
 	const selectedError = $derived(isSelectedCurrentStation ? playerState.errorMessage : null);
+	const mobileSummaryTitle = $derived(
+		selectedCluster
+			? `${selectedCluster.pointCount.toLocaleString()} nearby stations`
+			: selectedStation?.name ?? ''
+	);
+	const mobileSummaryDetail = $derived(
+		selectedCluster
+			? selectedClusterCountrySummary || 'Open cluster details and station list.'
+			: selectedStationMeta || 'Open station details and playback controls.'
+	);
+
+	$effect(() => {
+		const nextSelectionKey = mobileSelectionKey;
+		const isDesktopViewport = isXlUp.current;
+
+		if (!nextSelectionKey) {
+			mobilePanelOpen = false;
+			lastMobileSelectionKey = '';
+			return;
+		}
+
+		if (isDesktopViewport) {
+			mobilePanelOpen = false;
+			lastMobileSelectionKey = '';
+			return;
+		}
+
+		if (nextSelectionKey !== lastMobileSelectionKey) {
+			mobilePanelOpen = true;
+			lastMobileSelectionKey = nextSelectionKey;
+		}
+	});
 
 	function getApproximateStationDetail(station: AppStation) {
 		if (!station.radioBrowser.geo_is_approximate) {
@@ -128,18 +179,9 @@
 	}
 </script>
 
-{#if !selectedCluster && !selectedStation}
-	<div class="border-border bg-card/70 text-muted-foreground flex items-center gap-3 rounded-xl border px-4 py-3 text-sm shadow-sm sm:hidden">
-		<RadioIcon class="text-primary size-4 shrink-0" />
-		<p>Tap a cluster or station on the map to open details and playback controls.</p>
-	</div>
-{/if}
-
-<aside
-	class={`border-border bg-card relative z-10 min-h-72 min-w-0 flex-col overflow-hidden rounded-xl border shadow-sm ${selectedCluster || selectedStation ? 'flex max-h-[42svh] sm:max-h-none xl:max-h-full' : 'hidden sm:flex'}`}
->
+{#snippet panelHeader(showIcon: boolean, showCloseButton: boolean = false)}
 	<div class="border-border flex items-start justify-between gap-3 border-b px-4 py-3 sm:px-5 sm:py-4">
-		<div class="space-y-1">
+		<div class={`min-w-0 space-y-1 ${showIcon || showCloseButton ? '' : 'pr-10'}`}>
 			<p class="text-foreground text-sm font-semibold">
 				{selectedCluster ? 'Cluster preview' : 'Selected station'}
 			</p>
@@ -151,9 +193,21 @@
 				{/if}
 			</p>
 		</div>
-		<RadioIcon class="text-primary size-4 shrink-0" />
+		{#if showIcon}
+			<RadioIcon class="text-primary size-4 shrink-0" />
+		{:else if showCloseButton}
+			<Drawer.Close>
+				{#snippet child({ props })}
+					<Button variant="ghost" size="icon-sm" class="shrink-0" aria-label="Close map details" {...props}>
+						<XIcon class="size-4" />
+					</Button>
+				{/snippet}
+			</Drawer.Close>
+		{/if}
 	</div>
+{/snippet}
 
+{#snippet panelContent()}
 	{#if selectedCluster}
 		<div class="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-4 sm:gap-5 sm:p-5">
 			<div class="flex min-h-0 flex-1 flex-col gap-3">
@@ -385,4 +439,54 @@
 			No station is selected yet.
 		</div>
 	{/if}
+{/snippet}
+
+{#if !hasSelection}
+	<div class="border-border bg-card/70 text-muted-foreground flex items-center gap-3 rounded-xl border px-4 py-3 text-sm shadow-sm xl:hidden">
+		<RadioIcon class="text-primary size-4 shrink-0" />
+		<p>Tap a cluster or station on the map to open details and playback controls.</p>
+	</div>
+{:else}
+	<button
+		type="button"
+		class="border-border bg-card/92 flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left shadow-sm backdrop-blur-sm xl:hidden"
+		onclick={() => {
+			mobilePanelOpen = true;
+		}}
+	>
+		<div class="bg-muted text-foreground flex size-11 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold">
+			{#if selectedCluster}
+				{selectedCluster.pointCount}
+			{:else}
+				{selectedStation?.name.slice(0, 1)}
+			{/if}
+		</div>
+		<div class="min-w-0 flex-1">
+			<p class="truncate text-sm font-semibold">{mobileSummaryTitle}</p>
+			<p class="text-muted-foreground truncate text-xs">{mobileSummaryDetail}</p>
+		</div>
+		<span class="text-primary shrink-0 text-xs font-medium">Open</span>
+	</button>
+
+	{#if !isXlUp.current}
+		<Drawer.Root bind:open={mobilePanelOpen} shouldScaleBackground={false}>
+			<Drawer.Content class="max-h-[78svh] p-0 xl:hidden">
+				<Drawer.Header class="sr-only">
+					<Drawer.Title>{selectedCluster ? 'Cluster preview' : 'Selected station'}</Drawer.Title>
+					<Drawer.Description>
+						Open map details and playback controls for the current selection.
+					</Drawer.Description>
+				</Drawer.Header>
+				<div class="flex min-h-0 max-h-[78svh] flex-col overflow-hidden">
+					{@render panelHeader(false, true)}
+					{@render panelContent()}
+				</div>
+			</Drawer.Content>
+		</Drawer.Root>
+	{/if}
+{/if}
+
+<aside class="border-border bg-card relative z-10 hidden min-h-72 min-w-0 flex-col overflow-hidden rounded-xl border shadow-sm xl:flex xl:max-h-full">
+	{@render panelHeader(true)}
+	{@render panelContent()}
 </aside>
