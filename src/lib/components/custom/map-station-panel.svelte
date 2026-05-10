@@ -19,6 +19,28 @@
 		languageCount: number;
 	};
 
+	type ClusterListRow =
+		| {
+				id: string;
+				kind: 'header';
+				label: string;
+				approximate: boolean;
+				height: number;
+			}
+		| {
+				id: string;
+				kind: 'station';
+				station: AppStation;
+				approximate: boolean;
+				height: number;
+			};
+
+	const CLUSTER_LIST_HEADER_HEIGHT = 24;
+	const CLUSTER_LIST_PADDED_HEADER_HEIGHT = 32;
+	const CLUSTER_LIST_STATION_HEIGHT = 72;
+	const CLUSTER_LIST_OVERSCAN = 6;
+	const CLUSTER_LIST_VIRTUALIZE_THRESHOLD = 20;
+
 	let {
 		selectedCluster = null,
 		selectedStation = null,
@@ -35,6 +57,9 @@
 
 	let mobilePanelOpen = $state(false);
 	let lastMobileSelectionKey = '';
+	let clusterListViewport: HTMLDivElement | null = $state(null);
+	let clusterListScrollTop = $state(0);
+	let clusterListViewportHeight = $state(0);
 	const isXlUp = new IsTailwindBreakpointUp('xl');
 
 	const hasSelection = $derived(!!selectedCluster || !!selectedStation);
@@ -64,6 +89,100 @@
 
 		return selectedCluster.stations.slice(0, 6);
 	});
+	const selectedClusterVisibleExactStations = $derived.by(() =>
+		selectedClusterVisibleStations.filter((station) => !station.radioBrowser.geo_is_approximate)
+	);
+	const selectedClusterVisibleApproximateStations = $derived.by(() =>
+		selectedClusterVisibleStations.filter((station) => station.radioBrowser.geo_is_approximate)
+	);
+	const clusterListRows = $derived.by(() => {
+		const rows: ClusterListRow[] = [];
+
+		if (selectedClusterVisibleExactStations.length > 0) {
+			rows.push({
+				id: 'exact-header',
+				kind: 'header',
+				label: 'Exact locations',
+				approximate: false,
+				height: CLUSTER_LIST_HEADER_HEIGHT
+			});
+
+			for (const station of selectedClusterVisibleExactStations) {
+				rows.push({
+					id: `station:${station.id}`,
+					kind: 'station',
+					station,
+					approximate: false,
+					height: CLUSTER_LIST_STATION_HEIGHT
+				});
+			}
+		}
+
+		if (selectedClusterVisibleApproximateStations.length > 0) {
+			rows.push({
+				id: 'approximate-header',
+				kind: 'header',
+				label: 'Inferred locations',
+				approximate: true,
+				height: CLUSTER_LIST_PADDED_HEADER_HEIGHT
+			});
+
+			for (const station of selectedClusterVisibleApproximateStations) {
+				rows.push({
+					id: `station:${station.id}`,
+					kind: 'station',
+					station,
+					approximate: true,
+					height: CLUSTER_LIST_STATION_HEIGHT
+				});
+			}
+		}
+
+		return rows;
+	});
+	const shouldVirtualizeClusterList = $derived(
+		!isXlUp.current && clusterListRows.length > CLUSTER_LIST_VIRTUALIZE_THRESHOLD
+	);
+	const clusterListPrefixHeights = $derived.by(() => {
+		const prefixHeights = [0];
+		let totalHeight = 0;
+
+		for (const row of clusterListRows) {
+			totalHeight += row.height;
+			prefixHeights.push(totalHeight);
+		}
+
+		return prefixHeights;
+	});
+	const clusterListWindow = $derived.by(() => {
+		const rowCount = clusterListRows.length;
+
+		if (!shouldVirtualizeClusterList || rowCount === 0) {
+			return {
+				start: 0,
+				end: rowCount,
+				topPadding: 0,
+				bottomPadding: 0
+			};
+		}
+
+		const viewportBottom = clusterListScrollTop + clusterListViewportHeight;
+		const firstVisibleIndex = findClusterRowIndex(clusterListPrefixHeights, clusterListScrollTop);
+		const lastVisibleIndex = findClusterRowIndex(clusterListPrefixHeights, viewportBottom);
+		const start = Math.max(0, firstVisibleIndex - CLUSTER_LIST_OVERSCAN);
+		const end = Math.min(rowCount, lastVisibleIndex + CLUSTER_LIST_OVERSCAN + 1);
+
+		return {
+			start,
+			end,
+			topPadding: clusterListPrefixHeights[start] ?? 0,
+			bottomPadding:
+				(clusterListPrefixHeights[rowCount] ?? 0) - (clusterListPrefixHeights[end] ?? 0)
+		};
+	});
+	const clusterListWindowRows = $derived.by(() =>
+		clusterListRows.slice(clusterListWindow.start, clusterListWindow.end)
+	);
 	const selectedStationMeta = $derived(
 		selectedStation
 			? [selectedStation.country, selectedStation.language].filter(Boolean).join(' · ')
@@ -142,6 +261,15 @@
 		}
 	});
 
+	$effect(() => {
+		mobileSelectionKey;
+		showAllClusterStations;
+		clusterListRows.length;
+
+		clusterListScrollTop = 0;
+		clusterListViewport?.scrollTo({ top: 0 });
+	});
+
 	function getApproximateStationDetail(station: AppStation) {
 		if (!station.radioBrowser.geo_is_approximate) {
 			return '';
@@ -177,6 +305,31 @@
 
 		playStation(selectedStation);
 	}
+
+	function findClusterRowIndex(prefixHeights: number[], offset: number) {
+		if (prefixHeights.length <= 1) {
+			return 0;
+		}
+
+		let low = 0;
+		let high = prefixHeights.length - 2;
+
+		while (low < high) {
+			const mid = Math.floor((low + high + 1) / 2);
+
+			if ((prefixHeights[mid] ?? 0) <= offset) {
+				low = mid;
+			} else {
+				high = mid - 1;
+			}
+		}
+
+		return low;
+	}
+
+	function handleClusterListScroll(event: Event) {
+		clusterListScrollTop = (event.currentTarget as HTMLDivElement).scrollTop;
+	}
 </script>
 
 {#snippet panelHeader(showIcon: boolean, showCloseButton: boolean = false)}
@@ -205,6 +358,30 @@
 			</Drawer.Close>
 		{/if}
 	</div>
+{/snippet}
+
+{#snippet clusterListHeader(label: string, paddedTop: boolean = false)}
+	<p class={`text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em] ${paddedTop ? 'pt-2' : ''}`}>
+		{label}
+	</p>
+{/snippet}
+
+{#snippet clusterListStation(station: AppStation, approximate: boolean)}
+	<button
+		type="button"
+		class="border-border bg-muted/35 hover:bg-muted/60 flex h-16 w-full items-center justify-between gap-3 rounded-2xl border px-3 py-2.5 text-left transition-colors"
+		onclick={() => onFocusPreviewStation(station)}
+	>
+		<div class="min-w-0">
+			<p class="truncate text-sm font-semibold">{station.name}</p>
+			<p class="text-muted-foreground truncate text-xs">
+				{approximate ? getApproximateStationDetail(station) : `${station.country} · ${station.language}`}
+			</p>
+		</div>
+		<span class="text-muted-foreground shrink-0 text-xs font-medium">
+			{station.votes.toLocaleString()} votes
+		</span>
+	</button>
 {/snippet}
 
 {#snippet panelContent()}
@@ -270,55 +447,47 @@
 							</button>
 						{/if}
 					</div>
-					<ScrollArea.Root class="min-h-0 flex-1 overflow-y-auto pr-3" data-vaul-no-drag>
-						<div class="space-y-2">
-							{#if selectedCluster.exactStations.length > 0}
-								<p class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">
-									Exact locations
-								</p>
-								{#each selectedClusterVisibleStations.filter((station) => !station.radioBrowser.geo_is_approximate) as station}
-									<button
-										type="button"
-										class="border-border bg-muted/35 hover:bg-muted/60 flex w-full items-center justify-between gap-3 rounded-2xl border px-3 py-2.5 text-left transition-colors"
-										onclick={() => onFocusPreviewStation(station)}
-									>
-										<div class="min-w-0">
-											<p class="truncate text-sm font-semibold">{station.name}</p>
-											<p class="text-muted-foreground truncate text-xs">
-												{station.country} · {station.language}
-											</p>
-										</div>
-										<span class="text-muted-foreground shrink-0 text-xs font-medium">
-											{station.votes.toLocaleString()} votes
-										</span>
-									</button>
-								{/each}
-							{/if}
-
-							{#if selectedCluster.approximateStations.length > 0}
-								<p class="text-muted-foreground pt-2 text-[11px] font-semibold uppercase tracking-[0.18em]">
-									Inferred locations
-								</p>
-								{#each selectedClusterVisibleStations.filter((station) => station.radioBrowser.geo_is_approximate) as station}
-									<button
-										type="button"
-										class="border-border bg-muted/35 hover:bg-muted/60 flex w-full items-center justify-between gap-3 rounded-2xl border px-3 py-2.5 text-left transition-colors"
-										onclick={() => onFocusPreviewStation(station)}
-									>
-										<div class="min-w-0">
-											<p class="truncate text-sm font-semibold">{station.name}</p>
-											<p class="text-muted-foreground truncate text-xs">
-												{getApproximateStationDetail(station)}
-											</p>
-										</div>
-										<span class="text-muted-foreground shrink-0 text-xs font-medium">
-											{station.votes.toLocaleString()} votes
-										</span>
-									</button>
-								{/each}
-							{/if}
+					{#if shouldVirtualizeClusterList}
+						<div
+							bind:this={clusterListViewport}
+							bind:clientHeight={clusterListViewportHeight}
+							class="min-h-0 flex-1 overflow-y-auto pr-3"
+							data-vaul-no-drag
+							onscroll={handleClusterListScroll}
+						>
+							<div style={`height: ${clusterListWindow.topPadding}px;`}></div>
+							{#each clusterListWindowRows as row (row.id)}
+								{#if row.kind === 'header'}
+									<div style={`height: ${row.height}px;`}>
+										{@render clusterListHeader(row.label, row.approximate)}
+									</div>
+								{:else}
+									<div style={`height: ${row.height}px;`}>
+										{@render clusterListStation(row.station, row.approximate)}
+									</div>
+								{/if}
+							{/each}
+							<div style={`height: ${clusterListWindow.bottomPadding}px;`}></div>
 						</div>
-					</ScrollArea.Root>
+					{:else}
+						<ScrollArea.Root class="min-h-0 flex-1 overflow-y-auto pr-3" data-vaul-no-drag>
+							<div class="space-y-2">
+								{#if selectedClusterVisibleExactStations.length > 0}
+									{@render clusterListHeader('Exact locations')}
+									{#each selectedClusterVisibleExactStations as station}
+										{@render clusterListStation(station, false)}
+									{/each}
+								{/if}
+
+								{#if selectedClusterVisibleApproximateStations.length > 0}
+									{@render clusterListHeader('Inferred locations', true)}
+									{#each selectedClusterVisibleApproximateStations as station}
+										{@render clusterListStation(station, true)}
+									{/each}
+								{/if}
+							</div>
+						</ScrollArea.Root>
+					{/if}
 				</div>
 			</div>
 
