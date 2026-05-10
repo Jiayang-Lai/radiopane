@@ -141,7 +141,7 @@
 		return rows;
 	});
 	const shouldVirtualizeClusterList = $derived(
-		!isXlUp.current && clusterListRows.length > CLUSTER_LIST_VIRTUALIZE_THRESHOLD
+		clusterListRows.length > CLUSTER_LIST_VIRTUALIZE_THRESHOLD
 	);
 	const clusterListPrefixHeights = $derived.by(() => {
 		const prefixHeights = [0];
