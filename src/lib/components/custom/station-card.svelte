@@ -58,6 +58,10 @@
 		event.stopPropagation();
 	}
 
+	function handleStreamLinkInteraction(event: MouseEvent | KeyboardEvent) {
+		event.stopPropagation();
+	}
+
 	async function handleCopyStreamUrl() {
 		if (!station) {
 			return;
@@ -119,7 +123,21 @@
 								{/if}
 
 								{#if currentError}
-									<p class="text-destructive mt-3 text-sm font-medium">{currentError}</p>
+									<div class="mt-3 space-y-2">
+										<p class="text-destructive text-sm font-medium">{currentError}</p>
+										<Button
+											href={station.streamUrl}
+											target="_blank"
+											rel="noreferrer"
+											variant="link"
+											size="sm"
+											class="text-primary h-auto px-0"
+											onclick={handleStreamLinkInteraction}
+											onkeydown={handleStreamLinkInteraction}
+										>
+											Open stream directly
+										</Button>
+									</div>
 								{/if}
 							</Card.Content>
 
@@ -236,8 +254,20 @@
 					</div>
 
 					{#if currentError}
-						<div class="bg-destructive/10 text-destructive rounded-xl px-4 py-3 font-medium">
-							{currentError}
+						<div class="bg-destructive/10 text-destructive space-y-2 rounded-xl px-4 py-3 font-medium">
+							<p>{currentError}</p>
+							<Button
+								href={station.streamUrl}
+								target="_blank"
+								rel="noreferrer"
+								variant="link"
+								size="sm"
+								class="text-destructive h-auto px-0"
+								onclick={handleStreamLinkInteraction}
+								onkeydown={handleStreamLinkInteraction}
+							>
+								Open stream directly
+							</Button>
 						</div>
 					{/if}
 
