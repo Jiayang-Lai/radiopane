@@ -7,23 +7,20 @@
 	import type * as Leaflet from 'leaflet';
 	import 'leaflet/dist/leaflet.css';
 	import MapStationPanel from '$lib/components/custom/map-station-panel.svelte';
+	import {
+		buildSelectedCluster,
+		buildStationFeatures,
+		clusterDiameter,
+		getStationTooltipLabel,
+		markerRadius,
+		type SelectedCluster,
+		type StationClusterProperties,
+		type StationFeature
+	} from '$lib/components/custom/radio-map.helpers';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
 	import type { AppStation } from '$lib/radio-browser';
 
-	type StationClusterProperties = {
-		stationIndex: number;
-	};
-
-	type StationFeature = Supercluster.PointFeature<StationClusterProperties>;
 	type ClusterFeature = Supercluster.ClusterFeature<Supercluster.AnyProps>;
-	type SelectedCluster = {
-		pointCount: number;
-		stations: AppStation[];
-		exactStations: AppStation[];
-		approximateStations: AppStation[];
-		countries: string[];
-		languageCount: number;
-	};
 
 	let { stations }: { stations: AppStation[] } = $props();
 
@@ -32,7 +29,6 @@
 	let mapError = $state<string | null>(null);
 	let selectedCluster = $state<SelectedCluster | null>(null);
 	let selectedStation = $state<AppStation | null>(null);
-	let showAllClusterStations = $state(false);
 	let map: Leaflet.Map | null = null;
 	let markersLayer: Leaflet.LayerGroup | null = null;
 	let tileLayer: Leaflet.TileLayer | null = null;
@@ -61,40 +57,7 @@
 	const MAX_CLUSTER_ZOOM_STEP = 2;
 	const MAX_STATION_FOCUS_ZOOM = 12;
 
-	function markerRadius(votes: number) {
-		if (votes >= 1000) {
-			return 9;
-		}
-
-		if (votes >= 250) {
-			return 7;
-		}
-
-		if (votes >= 50) {
-			return 6;
-		}
-
-		return 5;
-	}
-
-	function clusterDiameter(pointCount: number) {
-		if (pointCount >= 500) {
-			return 58;
-		}
-
-		if (pointCount >= 100) {
-			return 50;
-		}
-
-		if (pointCount >= 25) {
-			return 44;
-		}
-
-		return 38;
-	}
-
 	function focusStation(station: AppStation) {
-		showAllClusterStations = false;
 		selectedCluster = null;
 		selectedStation = station;
 	}
@@ -154,74 +117,15 @@
 		});
 	}
 
-	function getStationTooltipLabel(station: AppStation) {
-		if (!station.radioBrowser.geo_is_approximate) {
-			return station.name;
-		}
-
-		const locationDetails = [
-			station.radioBrowser.country?.trim(),
-			station.radioBrowser.state?.trim(),
-			station.radioBrowser.iso_3166_2?.trim()
-		].filter(Boolean);
-
-		if (locationDetails.length === 0) {
-			return `${station.name} (approximate location)`;
-		}
-
-		return `${station.name} (approximate: ${locationDetails.join(' · ')})`;
-	}
-
-	function buildStationFeatures(stations: AppStation[]): StationFeature[] {
-		return stations.flatMap((station, stationIndex) => {
-			const latitude = station.radioBrowser.geo_lat;
-			const longitude = station.radioBrowser.geo_long;
-
-			if (latitude === null || longitude === null) {
-				return [];
-			}
-
-			return [
-				{
-					type: 'Feature',
-					properties: { stationIndex },
-					geometry: {
-						type: 'Point',
-						coordinates: [longitude, latitude]
-					}
-				}
-			];
-		});
-	}
-
 	function selectCluster(clusterId: number, pointCount: number, stations: AppStation[]) {
 		if (!clusterIndex) {
 			return;
 		}
 
-		const clusterStations = clusterIndex
-			.getLeaves(clusterId, pointCount)
-			.map((leaf) => stations[leaf.properties.stationIndex])
-			.filter((station): station is AppStation => Boolean(station))
-			.sort((left, right) => right.votes - left.votes);
-		const exactStations = clusterStations.filter((station) => !station.radioBrowser.geo_is_approximate);
-		const approximateStations = clusterStations.filter((station) => station.radioBrowser.geo_is_approximate);
-
-		const countries = [...new Set(clusterStations.map((station) => station.country).filter(Boolean))];
-		const languageCount = new Set(
-			clusterStations.map((station) => station.language).filter(Boolean)
-		).size;
+		const clusterData = buildSelectedCluster(clusterIndex.getLeaves(clusterId, pointCount), stations, pointCount);
 
 		selectedStation = null;
-		showAllClusterStations = approximateStations.length > 0;
-		selectedCluster = {
-			pointCount,
-			stations: clusterStations,
-			exactStations,
-			approximateStations,
-			countries,
-			languageCount
-		};
+		selectedCluster = clusterData;
 	}
 
 	function syncMapTheme(L: typeof import('leaflet')) {
@@ -405,7 +309,6 @@
 
 			selectedStation = null;
 			selectedCluster = null;
-			showAllClusterStations = false;
 
 			if (stationBounds.isValid()) {
 				map.fitBounds(stationBounds.pad(0.08));
@@ -426,14 +329,12 @@
 
 			mapError = 'Unable to initialize the radio map right now.';
 			selectedCluster = null;
-			showAllClusterStations = false;
 		});
 
 		return () => {
 			destroyed = true;
 			mapReady = false;
 			selectedCluster = null;
-			showAllClusterStations = false;
 			clusterIndex = null;
 			tileLayer?.remove();
 			tileLayer = null;
@@ -477,10 +378,6 @@
 	<MapStationPanel
 		{selectedCluster}
 		{selectedStation}
-		{showAllClusterStations}
-		onToggleShowAllClusterStations={() => {
-			showAllClusterStations = !showAllClusterStations;
-		}}
 		onFocusPreviewStation={focusPreviewStation}
 	/>
 </div>

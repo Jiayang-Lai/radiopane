@@ -44,14 +44,10 @@
 	let {
 		selectedCluster = null,
 		selectedStation = null,
-		showAllClusterStations = false,
-		onToggleShowAllClusterStations = () => {},
 		onFocusPreviewStation = () => {}
 	}: {
 		selectedCluster?: SelectedCluster | null;
 		selectedStation?: AppStation | null;
-		showAllClusterStations?: boolean;
-		onToggleShowAllClusterStations?: () => void;
 		onFocusPreviewStation?: (station: AppStation) => void;
 	} = $props();
 
@@ -83,11 +79,7 @@
 			return [] as AppStation[];
 		}
 
-		if (showAllClusterStations || selectedCluster.approximateStations.length > 0) {
-			return selectedCluster.stations;
-		}
-
-		return selectedCluster.stations.slice(0, 6);
+		return selectedCluster.stations;
 	});
 	const selectedClusterVisibleExactStations = $derived.by(() =>
 		selectedClusterVisibleStations.filter((station) => !station.radioBrowser.geo_is_approximate)
@@ -263,7 +255,6 @@
 
 	$effect(() => {
 		mobileSelectionKey;
-		showAllClusterStations;
 		clusterListRows.length;
 
 		clusterListScrollTop = 0;
@@ -431,21 +422,12 @@
 				<div class="flex min-h-0 flex-1 flex-col gap-2">
 					<div class="flex items-center justify-between gap-3">
 						<p class="text-muted-foreground text-[11px] font-semibold uppercase tracking-[0.18em]">
-							{#if selectedClusterHasApproximateStations || showAllClusterStations}
+							{#if selectedClusterHasApproximateStations}
 								Stations in this cluster
 							{:else}
-								Top stations in this cluster
+								Stations in this cluster
 							{/if}
 						</p>
-						{#if !selectedClusterHasApproximateStations && selectedCluster.stations.length > 6}
-							<button
-								type="button"
-								class="text-primary text-xs font-medium hover:underline"
-								onclick={onToggleShowAllClusterStations}
-							>
-								{showAllClusterStations ? 'Show fewer' : `Show all ${selectedCluster.stations.length.toLocaleString()}`}
-							</button>
-						{/if}
 					</div>
 					{#if shouldVirtualizeClusterList}
 						<div
