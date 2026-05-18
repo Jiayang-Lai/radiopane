@@ -8,6 +8,7 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
+		"lint": "npm run check",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
