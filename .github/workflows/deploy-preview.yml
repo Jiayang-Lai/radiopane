@@ -45,7 +45,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          command: pages deploy .svelte-kit/cloudflare --project-name=radiopane --branch=preview
+          command: pages deploy .svelte-kit/cloudflare --project-name=radiopane --env=preview
           environment: preview
 
       - name: Comment preview URL on pull request
