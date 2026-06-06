@@ -2,6 +2,8 @@
 
 Radio Pane is a SvelteKit web app for discovering, browsing, saving, and playing internet radio stations. It combines the [Radio Browser](https://www.radio-browser.info/) directory with browser-local custom stations, a clustered world map, and a compact player-focused interface.
 
+Try out the application here: [radiopane](https://radio.humblehamster.com/).
+
 ## What It Does
 
 - Discover popular stations from the [Radio Browser](https://www.radio-browser.info/) directory.

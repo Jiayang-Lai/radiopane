@@ -6,6 +6,12 @@
   };
   const changelog: ChangelogEntry[] = [
     {
+      version: "0.1.7",
+      changes: [
+        "Bumped dependencies.",
+      ],
+    },
+    {
       version: "0.1.6",
       changes: [
         "Implemented virtual station list for better performance.",
