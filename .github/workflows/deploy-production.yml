@@ -37,6 +37,7 @@ jobs:
     needs: verify-main-tag
     if: needs.verify-main-tag.outputs.should_deploy == 'true'
     runs-on: ubuntu-latest
+    environment: production
     permissions:
       contents: read
       deployments: write
