@@ -15,7 +15,7 @@ vuln: sbom scan ## Generate SBOM and run vulnerability scan
 
 version-bump: ## Bump version using npm (patch by default)
 	@echo "Bumping version..."
-	npm version patch
+	npm version patch --no-git-tag-version
 
 ff-merge: ## Fast-forward merge the dev branch to main
 	@echo "Performing fast-forward merge to main..."
