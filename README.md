@@ -1,5 +1,7 @@
 # Radio Pane
 
+[![Validation](https://github.com/Jiayang-Lai/radiopane/actions/workflows/validation.yml/badge.svg)](https://github.com/Jiayang-Lai/radiopane/actions/workflows/validation.yml) [![Deploy Production](https://github.com/Jiayang-Lai/radiopane/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/Jiayang-Lai/radiopane/actions/workflows/deploy-production.yml)
+
 Radio Pane is a SvelteKit web app for discovering, browsing, saving, and playing internet radio stations. It combines the [Radio Browser](https://www.radio-browser.info/) directory with browser-local custom stations, a clustered world map, and a compact player-focused interface.
 
 Try out the application here: [radiopane](https://radio.humblehamster.com/).
