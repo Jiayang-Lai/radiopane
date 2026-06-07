@@ -6,6 +6,18 @@
   };
   const changelog: ChangelogEntry[] = [
     {
+      version: "0.1.9",
+      changes: [
+        "Added buttons.",
+      ],
+    },
+    {
+      version: "0.1.8",
+      changes: [
+        "Skipped as it was about repository maintenance.",
+      ],
+    },
+    {
       version: "0.1.7",
       changes: [
         "Bumped dependencies.",

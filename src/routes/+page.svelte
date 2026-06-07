@@ -1,6 +1,7 @@
 <script lang="ts">
 	import RadioIcon from '@lucide/svelte/icons/radio';
 	import PlayCircleIcon from '@lucide/svelte/icons/play-circle';
+	import StarIcon from '@lucide/svelte/icons/star';
 	import ZapIcon from '@lucide/svelte/icons/zap';
 	import { Button } from '$lib/components/ui/button';
 </script>
@@ -46,7 +47,7 @@
 			</p>
 
 			<!-- Feature highlights -->
-			<div class="mb-12 grid gap-4 sm:grid-cols-3">
+			<div class="mb-12 grid gap-4 sm:grid-cols-4">
 				<div class="rounded-lg bg-slate-800/50 backdrop-blur p-4 border border-slate-700/50">
 					<ZapIcon class="mx-auto mb-2 h-6 w-6 text-cyan-400" />
 					<p class="text-sm font-medium text-slate-200">Instant Streaming</p>
@@ -55,6 +56,14 @@
 					<RadioIcon class="mx-auto mb-2 h-6 w-6 text-blue-400" />
 					<p class="text-sm font-medium text-slate-200">1000+ Stations</p>
 				</div>
+				<a
+					href="https://github.com/Jiayang-Lai/radiopane"
+					target="_blank"
+					class="rounded-lg bg-slate-800/50 backdrop-blur p-4 border border-slate-700/50"
+				>
+					<StarIcon class="mx-auto mb-2 h-6 w-6 text-yellow-400" />
+					<p class="text-sm font-medium text-slate-200">Open Source</p>
+				</a>
 				<div class="rounded-lg bg-slate-800/50 backdrop-blur p-4 border border-slate-700/50">
 					<PlayCircleIcon class="mx-auto mb-2 h-6 w-6 text-purple-400" />
 					<p class="text-sm font-medium text-slate-200">Zero Ads</p>
