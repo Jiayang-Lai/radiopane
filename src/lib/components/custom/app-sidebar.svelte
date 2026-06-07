@@ -6,6 +6,7 @@
 	import RadioIcon from '@lucide/svelte/icons/radio';
 	import SunIcon from '@lucide/svelte/icons/sun';
 	import ScrollTextIcon from '@lucide/svelte/icons/scroll-text';
+	import GitGraphIcon from '@lucide/svelte/icons/git-graph';
 	import packageJson from '../../../../package.json';
 
 	const options = {
@@ -112,6 +113,20 @@
 						<a href="/app/changelog" class="flex items-center gap-2">
 							<ScrollTextIcon class="size-4" />
 							<span>Changelog</span>
+						</a>
+					</Sidebar.MenuButton>
+				</Sidebar.MenuItem>
+				<!-- Add icon that links to github project -->
+				<Sidebar.MenuItem>
+					<Sidebar.MenuButton
+						tooltipContent="Open GitHub project"
+						class="text-muted-foreground hover:text-foreground"
+						aria-label="Open GitHub project"
+						title="Open GitHub project"
+					>
+						<a href="https://github.com/Jiayang-Lai/radiopane" target="_blank" class="flex items-center gap-2">
+							<GitGraphIcon class="size-4" />
+							<span>Source Code</span>
 						</a>
 					</Sidebar.MenuButton>
 				</Sidebar.MenuItem>
